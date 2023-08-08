@@ -5,6 +5,12 @@ export default {
     todo: Object,
   },
   emits: ['update'],
+  data() {
+    return {
+      editing: false,
+      newTitle: this.todo.title,
+    }
+  },
   methods: {
     toggle() {
       this.$emit('update', {
@@ -12,8 +18,38 @@ export default {
         completed: !this.todo.completed,
       })
     },
+    rename() {
+      if (!this.editing) {
+        return;
+      }
+
+      this.editing = false;
+
+      if (this.newTitle === this.todo.title) {
+        return;
+      }
+
+      if (this.newTitle.length === 0) {
+        this.remove();
+
+        return;
+      }
+
+      this.$emit('update', {
+        ...this.todo,
+        title: this.newTitle,
+      });
+      this.newTitle = '';
+    },
     remove() {
       this.$emit('delete')
+    },
+    edit() {
+      this.editing = true;
+      this.newTitle = this.todo.title;
+      this.$nextTick(() => {
+        this.$refs['title-field'].focus();
+      })
     }
   }
 }
@@ -33,17 +69,25 @@ export default {
       />
     </label>
 
-    <form v-if="false">
+    <form v-if="editing" @submit.prevent="rename">
       <input
         type="text"
         class="todo__title-field"
         placeholder="Empty todo will be deleted"
-        value="Todo is being edited now"
+        v-model.trim="newTitle"
+        ref="title-field"
+        @keyup.esc="editing = false"
+        @blur="rename"
       />
     </form>
 
     <template v-else>
-      <span class="todo__title">{{ todo.title }}</span>
+      <span
+        class="todo__title"
+        @dblclick="edit"
+      >
+        {{ todo.title }}
+      </span>
       <button
         type="button"
         class="todo__remove"
