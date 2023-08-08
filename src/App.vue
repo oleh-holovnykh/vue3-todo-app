@@ -1,7 +1,11 @@
 <script>
 import todos from './data/todos';
+import StatusFilter from './components/StatusFilter.vue';
 
 export default {
+  components: {
+    StatusFilter,
+  },
   data() {
     let todos = [];
     const jsonData = localStorage.getItem('todos') || '[]';
@@ -14,6 +18,7 @@ export default {
     return {
       todos,
       title: '',
+      status: 'all',
     }
   },
   computed: {
@@ -109,13 +114,9 @@ export default {
       <footer class="todoapp__footer">
         <span class="todo-count"> {{ activeTodos.length }} items left </span>
 
-        <nav class="filter">
-          <a href="#/" class="filter__link selected"> All </a>
-
-          <a href="#/active" class="filter__link"> Active </a>
-
-          <a href="#/completed" class="filter__link"> Completed </a>
-        </nav>
+        <StatusFilter
+          v-model="status"
+        />
 
         <button
           type="button"
