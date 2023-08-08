@@ -1,9 +1,11 @@
 <script>
 import todos from './data/todos';
 import StatusFilter from './components/StatusFilter.vue';
+import TodoItem from "@/components/TodoItem.vue";
 
 export default {
   components: {
+    TodoItem,
     StatusFilter,
   },
   data() {
@@ -69,46 +71,14 @@ export default {
       </header>
 
       <section class="todoapp__main">
-        <div
-          class="todo"
-          :class="{completed: todo.completed}"
+        <TodoItem
           v-for="(todo, index) of todos"
           :key="todo.id"
-        >
-          <label class="todo__status-label">
-            <input
-              type="checkbox"
-              class="todo__status"
-              :checked="todo.completed"
-              v-model="todo.completed"
-            />
-          </label>
+          :todo="todo"
+          @update="todos[index] = $event"
+          @delete="todos.splice(index, 1)"
+        />
 
-          <form v-if="false">
-            <input
-              type="text"
-              class="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value="Todo is being edited now"
-            />
-          </form>
-
-          <template v-else>
-            <span class="todo__title">{{ todo.title }}</span>
-            <button
-              type="button"
-              class="todo__remove"
-              @click="todos.splice(index, 1)"
-            >
-              ×
-            </button>
-          </template>
-
-          <div class="modal overlay" :class="{'is-active': false }">
-            <div class="modal-background has-background-white-ter"/>
-            <div class="loader"/>
-          </div>
-        </div>
       </section>
 
       <footer class="todoapp__footer">
