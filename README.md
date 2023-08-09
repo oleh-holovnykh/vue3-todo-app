@@ -1,5 +1,6 @@
 # Todo List App
 
+[DEMO](https://oleh-holovnykh.github.io/vue3-todo-app/)
 This is a simple Todo List application built using Vue.js. The app allows you to manage your tasks by adding, updating, and deleting them. It also provides a status filter to toggle between active and completed tasks, along with a "Clear completed" button to remove completed tasks.
 
 ## Technologies Used
