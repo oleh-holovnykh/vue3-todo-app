@@ -1,19 +1,21 @@
 <script>
-import todos from './data/todos';
 import StatusFilter from './components/StatusFilter.vue';
-import TodoItem from "@/components/TodoItem.vue";
+import TodoItem from './components/TodoItem.vue';
+import Message from './components/Message.vue';
 import {createTodo, deleteTodo, getTodos, updateTodo} from "@/api/todos";
 
 export default {
   components: {
     TodoItem,
     StatusFilter,
+    Message
   },
   data() {
     return {
       todos: [],
       title: '',
       status: 'all',
+      errorMessage: '',
     }
   },
   computed: {
@@ -35,9 +37,13 @@ export default {
     }
   },
   mounted() {
-    getTodos().then(({data}) => {
-      this.todos = data;
-    })
+    getTodos()
+      .then(({data}) => {
+        this.todos = data;
+      })
+      .catch(() => {
+        this.$refs.errorMessage.show('Unable to load todos');
+      })
   },
   methods: {
     handleSubmit() {
@@ -45,6 +51,9 @@ export default {
         .then(({data}) => {
           this.todos = [...this.todos, data];
           this.title = '';
+        })
+        .catch(() => {
+          this.$refs.errorMessage.show('Unable to add a todo');
         });
       this.title = ''
     },
@@ -53,11 +62,30 @@ export default {
         .then(({data}) => {
           this.todos = this.todos.map(todo => todo.id !== id ? todo : data);
         })
+        .catch(() => {
+          this.$refs.errorMessage.show('Unable to update a todo');
+        });
     },
     deleteTodo(todoId) {
       deleteTodo(todoId)
         .then(() => {
           this.todos = this.todos.filter(todo => todo.id !== todoId)
+        })
+        .catch(() => {
+          this.$refs.errorMessage.show('Unable to delete a todo');
+        });
+    },
+    clearCompleted() {
+      const completedTodoIds = this.completedTodos.map(todo => todo.id);
+
+      Promise.all(
+        completedTodoIds.map(todoId => deleteTodo(todoId))
+      )
+        .then(() => {
+          this.todos = this.todos.filter(todo => !completedTodoIds.includes(todo.id))
+        })
+        .catch(() => {
+          this.$refs.errorMessage.show('Unable to clear completed todos');
         })
     }
   }
@@ -110,22 +138,26 @@ export default {
         <button
           type="button"
           class="todoapp__clear-completed"
-          v-if="activeTodos.length > 0"
+          :class="{ hidebutton: completedTodos.length === 0}" 
+          @click="clearCompleted"
         >
           Clear completed
         </button>
       </footer>
     </div>
 
-    <div class="notification is-danger is-light has-text-weight-normal">
-      <button type="button" class="delete"/>
+    <Message
+      class="is-warning"
+      ref="errorMessage"
+    >
+      <template #default="{ text }">
+        <p>{{ text }}</p>
+      </template>
 
-      Unable to add a todo
-      <br/>
-      Unable to delete a todo
-      <br/>
-      Unable to update a todo
-    </div>
+      <template #header>
+        <p>Server Error</p>
+      </template>
+    </Message>
   </div>
 </template>
 <style>
@@ -140,5 +172,9 @@ export default {
   opacity: 0;
   max-height: 0;
   transform: scaleY(0);
+}
+
+.hidebutton {
+  visibility: hidden;
 }
 </style>
