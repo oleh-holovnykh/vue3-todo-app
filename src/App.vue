@@ -1,7 +1,7 @@
 <script>
-import StatusFilter from './components/StatusFilter.vue';
-import TodoItem from './components/TodoItem.vue';
-import Message from './components/Message.vue';
+import StatusFilter from '@/components/StatusFilter.vue';
+import TodoItem from '@/components/TodoItem.vue';
+import Message from '@/components/Message.vue';
 import {createTodo, deleteTodo, getTodos, updateTodo} from "@/api/todos";
 
 export default {
